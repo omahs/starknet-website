@@ -18,7 +18,7 @@ type Props = {
   description: string;
   icon?: ReactNode;
   mainMenus: MenuCategory[];
-  footerMenus: Menu[];
+  footerMenus?: Menu[];
 };
 
 export const NavigationMenuDropdown = (
@@ -61,7 +61,7 @@ export const NavigationMenuDropdown = (
         </div>
 
         <div  className="grid grid-rows-2 grid-flow-col gap-4">
-          {footerMenus.map((f, key) => (
+          {footerMenus && footerMenus.map((f, key) => (
               <div key={key} className="flex items-center">
                 <div className="mr-2">{f.icon}</div>
                 <a href={f.url} className="py-2 mb-2 text-sm">{f.label}</a>

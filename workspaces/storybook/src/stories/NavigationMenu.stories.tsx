@@ -85,17 +85,30 @@ export const Primary = () => (
                   description='Start here for an overview of all things Starknet'
                   mainMenus={[
                     {
-                      category: 'THE BASICS',
+                      category: 'REFERENCE',
                       menus: [
-                        { label: 'What is Starknet?', url: ''}
+                        { label: 'Documentation', url: ''},
+                        { label: 'Release notes', url: ''}
+                      ]
+                    }, {
+                      category: 'RESOURCES & TOOLS',
+                      menus: [
+                        { label: 'Tutorials', url: ''},
+                        { label: 'Workshops', url: ''},
+                        { label: 'Articles', url: ''},
+                        { label: 'Libraries & plug-ins', url: ''},
+                        { label: 'Templates', url: ''},
+                        { label: 'Starknet playground', url: ''}
+                      ]
+                    }, {
+                      category: 'NETWORK',
+                      menus: [
+                        { label: 'System monitoring', url: ''},
+                        { label: 'Bug bounty program', url: ''},
+                        { label: 'Audit service providers', url: ''},
+                        { label: 'RPC providers', url: ''}
                       ]
                     }
-                  ]}
-                  footerMenus={[
-                    { label: 'Starknet foundation', url: ''},
-                    { label: 'Glossary', url: ''},
-                    { label: 'FAQs', url: ''},
-                    { label: 'Media kit', url: ''},
                   ]}
                 />
               )
@@ -105,21 +118,19 @@ export const Primary = () => (
               dropdown: (
                 <NavigationMenuDropdown
                   icon={<CheckIcon />}
-                  title='EcoSystem'
+                  title='ECOSYSTEM OVERVIEW'
                   description='Start here for an overview of all things Starknet'
                   mainMenus={[
                     {
-                      category: 'THE BASICS',
+                      category: 'Tools*',
                       menus: [
-                        { label: 'What is Starknet?', url: ''}
+                        { label: 'Dapps', url: ''},
+                        { label: 'Wallets', url: ''},
+                        { label: 'Bridges', url: ''},
+                        { label: 'Fiat onramps', url: ''},
+                        { label: 'Block Explorers', url: ''}
                       ]
                     }
-                  ]}
-                  footerMenus={[
-                    { label: 'Starknet foundation', url: ''},
-                    { label: 'Glossary', url: ''},
-                    { label: 'FAQs', url: ''},
-                    { label: 'Media kit', url: ''},
                   ]}
                 />
               )
@@ -129,21 +140,38 @@ export const Primary = () => (
               dropdown: (
                 <NavigationMenuDropdown
                   icon={<CheckIcon />}
-                  title='Community'
+                  title='COMMUNITY HUB'
                   description='Start here for an overview of all things Starknet'
                   mainMenus={[
                     {
-                      category: 'THE BASICS',
+                      category: 'GET INVOLVED',
                       menus: [
-                        { label: 'What is Starknet?', url: ''}
+                        { label: 'Online communities', url: ''},
+                        { label: 'Events', url: ''},
+                        { label: 'Jobs', url: ''}
+                      ]
+                    }, {
+                      category: 'MEDIA',
+                      menus: [
+                        { label: 'Blog posts', url: ''},
+                        { label: 'Podcasts', url: ''},
+                        { label: 'Recorded talks', url: ''},
+                        { label: 'Community calls', url: ''}
+                      ]
+                    }, {
+                      category: 'GOVERNANCE',
+                      menus: [
+                        { label: 'Grants', url: ''},
+                        { label: 'Proposals', url: ''},
+                        { label: 'Claim rewards', url: ''}
+                      ]
+                    }, {
+                      category: 'UPDATES',
+                      menus: [
+                        { label: 'Starknet EDU newsletter', url: ''},
+                        { label: 'Starknet roundup newsletter', url: ''}
                       ]
                     }
-                  ]}
-                  footerMenus={[
-                    { label: 'Starknet foundation', url: ''},
-                    { label: 'Glossary', url: ''},
-                    { label: 'FAQs', url: ''},
-                    { label: 'Media kit', url: ''},
                   ]}
                 />
               )
