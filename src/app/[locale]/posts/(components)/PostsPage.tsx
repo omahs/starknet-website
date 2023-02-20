@@ -3,13 +3,15 @@
 import {
   BreadcrumbItem,
   BreadcrumbLink,
-  SimpleGrid,
   Breadcrumb,
   Box,
   Button,
   Wrap,
   Container,
   Flex,
+  HStack,
+  Divider,
+  Grid,
 } from "@chakra-ui/react";
 import moment from "moment";
 import * as ArticleCard from "@ui/ArticleCard/ArticleCard";
@@ -18,13 +20,13 @@ import algoliasearch from "src/libs/algoliasearch/lite";
 import {
   InstantSearch,
   Configure,
-  useHits,
   useRefinementList,
 } from "src/libs/react-instantsearch-hooks-web";
 import type { Category } from "src/data/categories";
 import { PageLayout } from "@ui/Layout/PageLayout";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Topic } from "src/data/topics";
+import { useInfiniteHits } from "react-instantsearch-hooks-web";
 
 export interface Props extends LocaleProps {
   readonly categories: readonly Category[];
@@ -49,6 +51,7 @@ export function PostsPage({
   }, [env.ALGOLIA_APP_ID, env.ALGOLIA_SEARCH_API_KEY]);
 
   const searchParams = useSearchParams();
+  const category = categories.find((c) => c.slug === params.category);
 
   return (
     <Box pt="18" minH="100vh">
@@ -58,7 +61,7 @@ export function PostsPage({
           facetsRefinements={{
             locale: [params.locale],
             topic: searchParams.get("topic")?.split(",") ?? [],
-            category: params.category != null ? [params.category] : [],
+            category: category != null ? [category.id] : [],
           }}
         />
         <Container maxW="container.xl" mb={4}>
@@ -68,7 +71,7 @@ export function PostsPage({
           sectionHeaderTitle="Blog"
           sectionHeaderDescription="The latest articles, podcasts and videos on all things StarkNet."
           breadcrumbs={
-            <Breadcrumb separator="->">
+            <Breadcrumb separator="/">
               <BreadcrumbItem>
                 <BreadcrumbLink fontSize="sm" href="#">
                   Community
@@ -89,7 +92,7 @@ export function PostsPage({
           }
           main={
             <Box>
-              <CustomHits />
+              <CustomHits categories={categories} />
             </Box>
           }
         />
@@ -97,6 +100,7 @@ export function PostsPage({
     </Box>
   );
 }
+
 function CustomTopics({ topics }: Pick<Props, "topics">) {
   const router = useRouter();
   const pathname = usePathname()!;
@@ -146,7 +150,7 @@ function CustomCategories({
   params,
 }: Pick<Props, "categories" | "params">) {
   const router = useRouter();
-  console.log(params);
+
   return (
     <Flex
       as="ul"
@@ -169,15 +173,15 @@ function CustomCategories({
         </Button>
       </Box>
       {categories.map((category) => (
-        <Box key={category.id}>
+        <Box key={category.slug}>
           <Button
             variant="category"
             as="a"
-            isActive={category.id === params.category}
+            isActive={category.slug === params.category}
             onClick={() => {
-              if (category.id === params.category) return;
+              if (category.slug === params.category) return;
 
-              router.replace(`/${params.locale}/posts/${category.id}`);
+              router.replace(`/${params.locale}/posts/${category.slug}`);
             }}
           >
             <> {category.name}</>
@@ -188,72 +192,51 @@ function CustomCategories({
   );
 }
 
-type HitProps = {
-  readonly hits: readonly {
-    readonly id: string;
-    readonly slug: string;
-    readonly title: string;
-    readonly image: string;
-    readonly category: string;
-    readonly topic: string;
-    readonly short_desc: string;
-    readonly locale: string;
-    readonly filepath: string;
-    readonly post_type: string;
-    readonly time_to_consume: string;
-    readonly published_date: string;
-  }[];
+type Hit = {
+  readonly id: string;
+  readonly slug: string;
+  readonly title: string;
+  readonly image: string;
+  readonly category: string;
+  readonly topic: string;
+  readonly short_desc: string;
+  readonly locale: string;
+  readonly filepath: string;
+  readonly post_type: string;
+  readonly time_to_consume: string;
+  readonly published_date: string;
 };
 
-const categories = {
-  "community-calls": {
-    label: "Community calls",
-    id: "community_calls",
-  },
-  "community-and-events": {
-    label: "Community and events",
-    id: "community_and_events",
-  },
-  "stark-struck": {
-    label: "Stark Struck",
-    id: "stark_struct",
-  },
-  engineering: {
-    label: "Engineering",
-    id: "engineering",
-  },
-  governance: {
-    label: "Governance",
-    id: "governance",
-  },
-  "stark-math": {
-    label: "Stark Math",
-    id: "stark_math",
-  },
-};
-function CustomHits() {
-  const { hits }: HitProps = useHits();
-  console.log(hits);
+function CustomHits({ categories }: Pick<Props, "categories">) {
+  const { hits, showMore, isLastPage } = useInfiniteHits<Hit>();
+
   return (
     <>
-      <SimpleGrid minChildWidth="250px" spacing="16px">
+      <Grid
+        templateColumns={{
+          base: "repeat(auto-fit, minmax(280px, 1fr))",
+          lg: "repeat(auto-fit, minmax(280px, 1fr))",
+          xl: "repeat(auto-fit, minmax(280px, 299px))",
+        }}
+        templateRows="1fr"
+        columnGap="24px"
+        rowGap="48px"
+      >
         {hits.map((hit, i) => {
           // todo: add a featured image once we have image templates in place
 
           const date = moment(hit.published_date).format("MMM DD, YYYY");
+          const category = categories.find((c) => c.id === hit.category)!;
 
           return (
             <ArticleCard.Root
-              href={`/${hit.locale}/posts/${hit.category}/${hit.slug}`}
+              href={`/${hit.locale}/posts/${category.slug}/${hit.slug}`}
               key={i}
             >
               <ArticleCard.Image url={hit.image} />
 
               <ArticleCard.Body>
-                <ArticleCard.Category
-                  /* @ts-expect-error TODO: fix this */
-                  category={categories[`${hit.category}`]}
-                />
+                <ArticleCard.Category category={category} />
                 <ArticleCard.Content
                   title={hit.title}
                   excerpt={hit.short_desc}
@@ -267,15 +250,16 @@ function CustomHits() {
             </ArticleCard.Root>
           );
         })}
-      </SimpleGrid>
-
-      {/* <HStack mt="24">
-        <Divider />
-        <Button onClick={() => showMore()} flexShrink={0} variant="secondary">
-          View More
-        </Button>
-        <Divider />
-      </HStack> */}
+      </Grid>
+      {!isLastPage && (
+        <HStack mt="24">
+          <Divider />
+          <Button onClick={() => showMore()} flexShrink={0} variant="secondary">
+            View More
+          </Button>
+          <Divider />
+        </HStack>
+      )}
     </>
   );
 }

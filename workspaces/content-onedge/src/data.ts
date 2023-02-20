@@ -24,7 +24,7 @@ export interface Post extends Meta {
   readonly post_date: string;
   readonly time_to_consume: string;
   readonly published_date: string;
-  readonly video_link: string;
+  readonly video: any;
   blocks: readonly any[];
 }
 
@@ -62,7 +62,7 @@ export async function fileToPost(
     post_date: data.post_date,
     published_date: data.published_date,
     time_to_consume: data.time_to_consume,
-    video_link: data.video_link,
+    video: data.video,
     topic: data.topic,
     short_desc: data.short_desc,
     image: data.image,
@@ -263,8 +263,11 @@ export async function getSimpleData<T = {}>(
       const sourceFilepath =
         defaultLocaleData === data ? defaultLocaleFilepath : filepath;
 
+      const dataTitle = data.title ?? data.name;
+
       filenameMap.set(`${locale.code}:${filename}`, {
         ...data,
+        slug: dataTitle ? slugify(dataTitle) : undefined,
         locale: locale.code,
         objectID: `${resourceName}:${locale.code}:${filename}`,
         sourceFilepath,

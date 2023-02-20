@@ -9,14 +9,17 @@ import {
   VStack,
   HStack,
   SimpleGrid,
+  Divider,
+  Grid,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
 import algoliasearch from "src/libs/algoliasearch/lite";
 import {
   InstantSearch,
   Configure,
+  useInfiniteHits,
 } from "src/libs/react-instantsearch-hooks-web";
-import { useHits, useRefinementList } from "react-instantsearch-hooks";
+import { useRefinementList } from "react-instantsearch-hooks";
 import { PageLayout } from "@ui/Layout/PageLayout";
 import { Heading } from "@ui/Typography/Heading";
 import * as GridCard from "@ui/Card/GridCard";
@@ -55,7 +58,7 @@ export function TutorialsPage({ params, env }: Props): JSX.Element | null {
           sectionHeaderTitle="Tutorials"
           sectionHeaderDescription="Learn about Starknet by developers, for developers"
           breadcrumbs={
-            <Breadcrumb separator="->">
+            <Breadcrumb separator="/">
               <BreadcrumbItem>
                 <BreadcrumbLink fontSize="sm" href="#">
                   Developers
@@ -74,6 +77,7 @@ export function TutorialsPage({ params, env }: Props): JSX.Element | null {
               <CustomType />
               <CustomCourse params={params} />
               <CustomDifficulty />
+              <CustomTags />
             </Box>
           }
           main={
@@ -92,7 +96,7 @@ function CustomDifficulty() {
     attribute: "difficulty",
     sortBy: ["name:asc"],
   });
-  console.log("Role", items);
+
   return (
     <Box mt={8}>
       <Heading as="h4" variant={"h6"} fontSize="14px" mb={4}>
@@ -123,11 +127,41 @@ function CustomType() {
     attribute: "type",
     sortBy: ["name:asc"],
   });
-  console.log("type", items);
+
   return (
     <Box mt={8}>
       <Heading as="h4" variant={"h6"} fontSize="14px" mb={4}>
         Type
+      </Heading>
+      <VStack dir="column" alignItems="stretch">
+        {items.map((item, i) => {
+          let label = titleCase(item.label);
+          return (
+            <Button
+              size="sm"
+              variant={item.isRefined ? "filterActive" : "filter"}
+              onClick={() => refine(item.value)}
+              key={i}
+              justifyContent="flex-start"
+            >
+              {label}
+            </Button>
+          );
+        })}
+      </VStack>
+    </Box>
+  );
+}
+function CustomTags() {
+  const { items, refine } = useRefinementList({
+    attribute: "tags",
+    sortBy: ["name:asc"],
+  });
+
+  return (
+    <Box mt={8}>
+      <Heading as="h4" variant={"h6"} fontSize="14px" mb={4}>
+        Tags
       </Heading>
       <VStack dir="column" alignItems="stretch">
         {items.map((item, i) => {
@@ -215,7 +249,6 @@ function CustomCourse({ params }: Pick<Props, "params">) {
 //     attribute: "tags",
 //     sortBy: ["name:asc"],
 //   });
-//   console.log("tags", items);
 
 //   return (
 //     <Box mt={8} maxHeight="300px" overflowY="auto">
@@ -257,15 +290,21 @@ type Tutorial = {
   readonly filepath: string;
 };
 
-type HitProps = {
-  readonly hits: readonly Tutorial[];
-};
 function CustomHits() {
-  const { hits }: HitProps = useHits();
+  const { hits, showMore, isLastPage } = useInfiniteHits<Tutorial>();
 
   return (
     <>
-      <SimpleGrid minChildWidth="280px" spacing="16px">
+      <Grid
+        templateColumns={{
+          base: "repeat(auto-fit, minmax(280px, 1fr))",
+          lg: "repeat(auto-fit, minmax(280px, 1fr))",
+          xl: "repeat(auto-fit, minmax(280px, 299px))",
+        }}
+        templateRows="1fr"
+        columnGap="24px"
+        rowGap="48px"
+      >
         {hits.map((hit) => {
           const date = moment(hit.published_at).format("MMM DD, YYYY");
           // let tags: string[] = [];
@@ -300,7 +339,7 @@ function CustomHits() {
             </GridCard.Root>
           );
         })}
-      </SimpleGrid>
+      </Grid>
       {/* {hits.map((hit, i) => (
           <ArticleCard.Root href="$" key={i}>
             <ArticleCard.Image url={`/static/${hit.image}`} />
@@ -317,13 +356,15 @@ function CustomHits() {
           </ArticleCard.Root>
         ))} */}
 
-      {/* <HStack mt="24">
-        <Divider />
-        <Button flexShrink={0} variant="secondary">
-          View More
-        </Button>
-        <Divider />
-      </HStack> */}
+      {!isLastPage && (
+        <HStack mt="24">
+          <Divider />
+          <Button onClick={() => showMore()} flexShrink={0} variant="secondary">
+            View More
+          </Button>
+          <Divider />
+        </HStack>
+      )}
     </>
   );
 }

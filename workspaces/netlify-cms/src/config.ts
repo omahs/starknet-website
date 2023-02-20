@@ -1,4 +1,9 @@
-import { CmsConfig, CmsField, CmsFieldList } from "netlify-cms-core";
+import {
+  CmsConfig,
+  CmsField,
+  CmsFieldList,
+  CmsFieldMeta,
+} from "netlify-cms-core";
 
 const locale = "en";
 
@@ -187,12 +192,6 @@ const blocks: CmsFieldList["types"] = [
         name: "link",
         widget: "object",
         fields: linkFields,
-      },
-      {
-        name: "link_label",
-      },
-      {
-        name: "link_href",
       },
     ],
   },
@@ -407,6 +406,7 @@ const blocks: CmsFieldList["types"] = [
     name: "ordered_block",
     label: "Ordered Block",
     widget: "object",
+
     fields: [
       {
         name: "blocks",
@@ -621,11 +621,11 @@ export const config: CmsConfig = {
           label: "Time to read / watch / listen (in minutes)",
         },
         {
-          name: "video_link",
+          name: "video",
           label: "Video - youtube link",
-          widget: "string",
+          widget: "youtube",
           required: false,
-        },
+        } as CmsFieldMeta,
         {
           name: "image",
           label: "Featured Image",
@@ -670,6 +670,7 @@ export const config: CmsConfig = {
       identifier_field: "id",
       folder: `_data/topics/${locale}`,
       slug: "{{name}}",
+      summary: "{{name}}",
       create: true,
       format: "yml",
       fields: [
@@ -691,6 +692,7 @@ export const config: CmsConfig = {
       identifier_field: "id",
       folder: `_data/categories/${locale}`,
       slug: "{{name}}",
+      summary: "{{name}}",
       create: true,
       format: "yml",
       fields: [
@@ -711,6 +713,7 @@ export const config: CmsConfig = {
       label_singular: "Event",
       folder: `_data/events/${locale}`,
       slug: "{{name}}",
+      summary: "{{name}}",
       create: true,
       format: "yml",
       fields: [
@@ -792,14 +795,6 @@ export const config: CmsConfig = {
             },
           ],
         },
-        // {
-        //   name: "city",
-        //   label: "City",
-        // },
-        // {
-        //   name: "country",
-        //   label: "Country",
-        // },
         {
           name: "tags",
           label: "Tags",
@@ -1048,23 +1043,40 @@ export const config: CmsConfig = {
           name: "name",
         },
         {
-          label: "Type",
-          name: "type",
-          widget: "select",
-          options: [
-            {
-              label: "Browser extension",
-              value: "browser_extension",
-            },
-            {
-              label: "iOS",
-              value: "ios",
-            },
-            {
-              label: "Android",
-              value: "android",
-            },
-          ],
+          label: "Website url",
+          name: "website_url",
+        },
+        {
+          label: "Image",
+          name: "image",
+          widget: "image",
+        },
+        {
+          label: "Company name",
+          name: "company_name",
+        },
+        {
+          label: "Twitter handle",
+          name: "twitter",
+        },
+        {
+          label: "Description",
+          name: "description",
+          widget: "string",
+        },
+      ],
+    },
+    {
+      label: "Bridges",
+      name: "bridges",
+      folder: `_data/bridges/${locale}`,
+      create: true,
+      format: "yml",
+      identifier_field: "name",
+      fields: [
+        {
+          label: "Name",
+          name: "name",
         },
         {
           label: "Website url",
@@ -1091,9 +1103,9 @@ export const config: CmsConfig = {
       ],
     },
     {
-      label: "Bridges and fiat on ramps",
-      name: "bridges",
-      folder: `_data/bridges/${locale}`,
+      label: "Fiat on-ramps",
+      name: "fiat-on-ramps",
+      folder: `_data/fiat-on-ramps/${locale}`,
       create: true,
       format: "yml",
       identifier_field: "name",
@@ -1101,25 +1113,6 @@ export const config: CmsConfig = {
         {
           label: "Name",
           name: "name",
-        },
-        {
-          label: "Type",
-          name: "type",
-          widget: "select",
-          options: [
-            {
-              label: "Browser extension",
-              value: "browser_extension",
-            },
-            {
-              label: "iOS",
-              value: "ios",
-            },
-            {
-              label: "Android",
-              value: "android",
-            },
-          ],
         },
         {
           label: "Website url",
@@ -1341,19 +1334,6 @@ export const config: CmsConfig = {
               label: "Description",
               name: "description",
             },
-            // {
-            //   label: "Youtube",
-            //   name: "youtube_link",
-            //   widget: 'youtube' as 'object',
-            //   fields: [
-            //     {
-            //       name: 'title'
-            //     },
-            //     {
-            //       name: 'description'
-            //     }
-            //   ]
-            // },
           ],
         },
       ],

@@ -20,7 +20,35 @@ import {
   BreadcrumbLink,
   HStack,
 } from "src/libs/chakra-ui";
-import { youtubeVideoIdFromURL } from "src/utils/utils";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { getCategories } from "src/data/categories";
+import { getTopics } from "src/data/topics";
+
+export async function generateStaticParams() {
+  const params = [];
+
+  for (const locale of ["en"]) {
+    const files = await fs.readdir(
+      path.join(process.cwd(), "_data/_dynamic/posts", locale)
+    );
+
+    const categories = await getCategories(locale);
+
+    for (const slug of files) {
+      const post = await getPostBySlug(slug.replace(/\.json$/, ""), locale);
+      const category = categories.find((c) => c.id === post.category)!;
+
+      params.push({
+        locale,
+        slug: post.slug,
+        category: category.slug,
+      });
+    }
+  }
+
+  return params;
+}
 
 export interface Props {
   readonly params: LocaleParams & {
@@ -33,17 +61,17 @@ export default async function Page({
 }: Props): Promise<JSX.Element> {
   try {
     const post = await getPostBySlug(slug, locale);
+    const categories = await getCategories(locale);
+    const topics = await getTopics(locale);
 
-    let videoId =
-      post.post_type === "video" && post.video_link
-        ? youtubeVideoIdFromURL(post.video_link)
-        : undefined;
+    const category = categories.find((c) => c.id === post.category)!;
+
+    let videoId = post.post_type === "video" ? post.video?.id : undefined;
 
     return (
       <PageLayout
         breadcrumbs={
-          <Breadcrumb separator="->">
-            <title>{post.title} - Starknet</title>
+          <Breadcrumb separator="/">
             <BreadcrumbItem>
               <BreadcrumbLink fontSize="sm" href="#">
                 <BreadcrumbLink fontSize="sm" href="# " noOfLines={1}>
@@ -53,7 +81,7 @@ export default async function Page({
             </BreadcrumbItem>
             <BreadcrumbItem>
               <BreadcrumbLink fontSize="sm" href="#" noOfLines={1}>
-                {post.category}
+                {category.name}
               </BreadcrumbLink>
             </BreadcrumbItem>
 
@@ -65,7 +93,7 @@ export default async function Page({
           </Breadcrumb>
         }
         pageLastUpdated={`Page last updated ${moment(
-          post?.gitlog?.date,
+          post?.gitlog?.date
         ).fromNow()}`}
         main={
           <Container maxWidth="846px">
@@ -111,8 +139,8 @@ export default async function Page({
             <Spacer height="32px" />
             <Divider />
             <Flex direction="row" gap="8px" mt="64px">
-              {post.topic.map((item, i) => (
-                <Tag key={i}> {item} </Tag>
+              {post.topic.map((topic, i) => (
+                <Tag key={i}> {topics.find((t) => t.id === topic)?.name} </Tag>
               ))}
             </Flex>
           </Container>
