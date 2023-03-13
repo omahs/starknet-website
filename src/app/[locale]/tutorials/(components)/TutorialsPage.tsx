@@ -302,6 +302,7 @@ function CustomHits() {
 
   return (
     <>
+        {console.log('hits ', hits)}
       <Grid
         templateColumns={{
           base: "repeat(auto-fit, minmax(280px, 1fr))",

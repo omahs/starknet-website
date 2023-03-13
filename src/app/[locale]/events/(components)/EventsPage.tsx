@@ -186,6 +186,7 @@ function CustomHits() {
 
   return (
     <>
+    {console.log('hits ', hits)}
       <Flex gap={4} direction="column" flex={1}>
         {hits.map((hit) => {
           return (
